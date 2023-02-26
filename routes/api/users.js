@@ -10,6 +10,22 @@ const {
 const {
   currentUserController,
 } = require("../../controller/users/currentUserController");
+const {
+  updateUserAvatarController,
+} = require("../../controller/users/updateUserAvatarController");
+const multer = require("multer");
+const path = require("path");
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, path.resolve("./tmp"));
+  },
+  filename: (req, file, cb) => {
+    const [filename, extension] = file.originalname.split(".");
+    cb(null, `${filename}.${extension}`);
+  },
+});
+const uploadMiddleware = multer({ storage });
 
 const router = express.Router();
 
@@ -27,4 +43,10 @@ router.post(
 router.use(authMiddleware);
 router.get("/logout", ctrlWrapper(logoutUserController));
 router.get("/current", ctrlWrapper(currentUserController));
+
+router.patch(
+  "/avatars",
+  uploadMiddleware.single("avatar"),
+  ctrlWrapper(updateUserAvatarController)
+);
 module.exports = router;
