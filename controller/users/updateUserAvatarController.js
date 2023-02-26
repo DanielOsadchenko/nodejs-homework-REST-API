@@ -3,6 +3,7 @@ const path = require("path");
 const fs = require("fs/promises");
 const Jimp = require("jimp");
 const RequestError = require("../../helpers/requestError");
+const { v4: uuidv4 } = require("uuid");
 
 const avatarsDir = path.join(__dirname, "../../", "public", "avatars");
 
@@ -13,7 +14,7 @@ const updateUserAvatarController = async (req, res) => {
   const { _id } = req.user;
 
   const { path: tempPath, originalname } = req.file;
-  const newName = `${_id}_${originalname}`;
+  const newName = `${_id}_${originalname}_${uuidv4()}`;
 
   try {
     const resultPath = path.join(avatarsDir, newName);
