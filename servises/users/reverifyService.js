@@ -1,8 +1,6 @@
+const { RequestError } = require("../../helpers/requestError");
 const { User } = require("../../db/userModel");
-const gravatar = require("gravatar");
 const sgMail = require('@sendgrid/mail');
-const { uuid } = require('uuidv4');
-
 
 const sendMail = (email, verifyToken) => {
 sgMail.setApiKey(process.env.SENDGRID_API_KEY)
@@ -23,17 +21,19 @@ sgMail
   })
 }
 
-const registerUserService = async (email, password) => {
-  const verifyToken = uuid()
-  const user = new User({
-    email,
-    password,
-    avatarURL: gravatar.url(email, { protocol: "https" }),
-    verificationToken: verifyToken,
-  });
-  await user.save();
-  await sendMail(email, verifyToken);
 
-  return user;
+
+
+const reverifyService = async (email) => {
+    const user = await User.findOne({ email });
+
+    if (!user) {
+        throw RequestError(404, 'User not found');
+    }
+    if (user.verify) {
+        throw RequestError(400, "Verification has already been passed");
+    }
+    await sendMail(email, user.verificationToken)
+
 };
-module.exports = { registerUserService };
+module.exports = reverifyService;
