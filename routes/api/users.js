@@ -15,6 +15,8 @@ const {
 } = require("../../controller/users/updateUserAvatarController");
 const multer = require("multer");
 const path = require("path");
+const verificationController = require("../../controller/users/verificationController");
+const reverifyController = require("../../controller/users/reverifyController");
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -40,6 +42,10 @@ router.post(
   validation(usersSchema),
   ctrlWrapper(loginUserController)
 );
+
+router.get('/verify/:verificationToken', ctrlWrapper(verificationController));
+router.post('/verify', ctrlWrapper(reverifyController));
+
 router.use(authMiddleware);
 router.get("/logout", ctrlWrapper(logoutUserController));
 router.get("/current", ctrlWrapper(currentUserController));
